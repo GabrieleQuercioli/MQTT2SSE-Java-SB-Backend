@@ -25,13 +25,15 @@ public class MqttBeans {
         DefaultMqttPahoClientFactory factory = new DefaultMqttPahoClientFactory();
         MqttConnectOptions options = new MqttConnectOptions();
 
-        options.setServerURIs(new String[] {"tcp://localhost:1883"});
+        options.setServerURIs(new String[] {"tcp://192.168.0.58:1883"});
         options.setUserName("Gabriele05");
         String password = "a31453";
         options.setPassword(password.toCharArray());
         options.setAutomaticReconnect(false); //TODO: change to true
         options.setCleanSession(true);
         options.setConnectionTimeout(10);
+        String willMsg = "Client disconnected ungracefully";
+        options.setWill("failTopic", willMsg.getBytes(), 2, true);
 
         factory.setConnectionOptions(options); //Mqtt connection options injected into factory
 
@@ -67,10 +69,15 @@ public class MqttBeans {
             @Override
             public void handleMessage(Message message) throws MessagingException {
                 String topic = message.getHeaders().get(MqttHeaders.RECEIVED_TOPIC).toString();
-                if (topic.equals("mytopic")) {
-                    System.out.println("This is our Topic");
+                if (topic.equals("newentry")) {
+                    System.out.println("New Entry Topic Event");
                 }
                 System.out.println(message.getPayload());
+                String msg = message.getPayload().toString();
+                message.getHeaders().get(MqttHeaders.RECEIVED_RETAINED);
+               // System.out.println(msg);
+                //NewsSSEController nssec = new NewsSSEController();
+                NewsSSEController.dispatchEventsToClients(topic, msg, "gabri05");
             }
         };
     }

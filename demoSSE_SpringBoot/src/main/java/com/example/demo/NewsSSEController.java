@@ -18,7 +18,7 @@ public class NewsSSEController {
 
     // CopyOnWriteArrayList is a thread-safe list
     //private List<SseEmitter> emitters = new CopyOnWriteArrayList<SseEmitter>(); //store all the SSE-emitters for the clients connected
-    private Map<String, SseEmitter> emitters = new HashMap<String, SseEmitter>(); //store each emitter with its Client-user
+    private static Map<String, SseEmitter> emitters = new HashMap<String, SseEmitter>(); //store each emitter with its Client-user
     private static int msgID = 0;
 
     // method for client subscription, permits the connection releasing a SSE-emitter
@@ -48,19 +48,22 @@ public class NewsSSEController {
     //method to dispatch events for specific clients
     //get the HTTP request in POST from the server and dispatch the events at clients
     @PostMapping(value = "/dispatchEvent") //Post method for not letting public the parameters in Rest-Request
-    public void dispatchEventsToClients(@RequestParam String title, @RequestParam String text, @RequestParam String userID) {
+    public static void dispatchEventsToClients(@RequestParam String title, @RequestParam String text, @RequestParam String userIDmsg) {
 
+        //System.out.println("parametri: " + title + " " + text + " " + userIDmsg);
         String eventFormatted = new JSONObject().put("title", title).put("text", text).toString(); //stringify the JSON msg
         //retrieve the emitter stored in the map with requested userID
-        SseEmitter sseEmitter = emitters.get(userID);
+
+
+        SseEmitter sseEmitter = emitters.get(userIDmsg);
 
         if (sseEmitter != null) {
             try {
                 //send the event for each emitter
                 sseEmitter.send(SseEmitter.event().id("msg ID: " + msgID++).name("latestNews").data(eventFormatted));
-                //emitter.complete();
+                //sseEmitter.complete();
             } catch (IOException e) {
-                emitters.remove(userID);
+                emitters.remove(userIDmsg);
                 //because if the client is not connected anymore, the SSE-emitter need to be removed from the list
             }
         }
