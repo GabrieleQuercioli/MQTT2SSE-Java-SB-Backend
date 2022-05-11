@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>SSE demo</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<!--Importo la libreria jQuery -->
+	<script type = "text/javascript" src = "https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+	<script src="js/main.js" type="text/javascript" language="javascript"></script>
+	<link rel="stylesheet" type="text/css" href="css/style.css">
+</head>
+<body>
+	<h1>SSE Client Demo</h1>
+	<div id="status">Connection Status: Not Connected</div>
+	<br>
+		 <form name="connform" action="" onsubmit="return checkConnection()">
+		 	Server:  	<input type="text" name="server"><br><br>
+			Port:    	<input type="text" name="port"><br><br>
+			EndPoint:   <input type="text" name="endpoint"><br><br>
+			UserID:    <input type="text" name="userID"><br><br>
+			TopicSub:    <input type="text" name="topic"><br><br>
+			<input name="conn" type="submit" value="Connect">
+		</form>
+	</div>
+	<br>
+	<div id="pack">
+		News Timeline
+	</div>
+</body>
+</html>
