@@ -35,7 +35,8 @@ public class NewsSSEController {
 
     // method for client subscription, permits the connection releasing a SSE-emitter
     // that allows clients to listen the specified channel for receiving the events from the server-side
-    //FIXME Su tutti i Browsers sono ammesse non più di 6 connesioni TCP contemporanee da questa sorgente
+    //FIXME Su tutti i Browsers sono ammesse non più di 6 connessioni TCP contemporanee da questa sorgente
+    // (Dovrei passare ad HTTP/2 ma può essere abilitato solo con la sicurezza TLS (https))
     @CrossOrigin
     @RequestMapping(value = "/subscribe", consumes = MediaType.ALL_VALUE) //define the endpoint for the REST request
     public SseEmitter subscribe(@RequestParam String userID, @RequestParam String topic) throws IOException {
@@ -85,7 +86,6 @@ public class NewsSSEController {
         }
     }
 
-
     //method to dispatch events for specific clients
     //get the HTTP request in POST from the server and dispatch the events at clients
     //@PostMapping(value = "/dispatchEvent") //Post method for not letting public the parameters in Rest-Request
@@ -132,5 +132,20 @@ public class NewsSSEController {
 
     public static void addStatusMessage(String topic, String payload) {
         statusMessages.put(topic,payload);
+    }
+
+    public static void unsubscribeTopic(String user, String topic) {
+        SseEmitter sseEmitter = null;
+        for (Map.Entry<Pair<String, SseEmitter>, String> it : emitters.entries()){
+            if (it.getValue().equals(topic) && it.getKey().getKey().equals(user)){
+               // System.out.println(it.getKey().getKey());
+                sseEmitter = it.getKey().getValue();
+            }
+        }
+        try {
+            emitters.remove(new Pair<String,SseEmitter>(user, sseEmitter),topic);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

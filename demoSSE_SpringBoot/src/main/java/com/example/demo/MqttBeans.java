@@ -47,8 +47,10 @@ public class MqttBeans {
 
     @Bean
     public MessageProducer inBound() {
+        //Topics for which the ChannelAdapter keeps listening on are only the ones in the context
+        //TODO Far prendere la lista dei Topics da un file di configurazione
         MqttPahoMessageDrivenChannelAdapter adapter = new MqttPahoMessageDrivenChannelAdapter("serverIn",
-                mqttClientFactory(), "#");
+                mqttClientFactory(), "newentry","status","topic","topic2");
         adapter.setCompletionTimeout(5000);
         //By default, the default DefaultPahoMessageConverter produces a message with a String payload
         // with the following headers: (mqtt_topic, mqtt_duplicate, mqtt_qos)
@@ -66,12 +68,12 @@ public class MqttBeans {
             @Override
             public void handleMessage(Message message) throws MessagingException {
                 String topic = message.getHeaders().get(MqttHeaders.RECEIVED_TOPIC).toString();
-                if (topic.equals("newentry")) {
+                /*if (topic.equals("newentry")) {
                     System.out.println("New Entry Topic Event");
-                }
+                }*/
                 System.out.println(message.getPayload());
                 String payload = message.getPayload().toString();
-                System.out.println("Retained: " + message.getHeaders().get(MqttHeaders.RECEIVED_RETAINED));
+                //System.out.println("Retained: " + message.getHeaders().get(MqttHeaders.RECEIVED_RETAINED));
                // System.out.println(msg);
                 //NewsSSEController nssec = new NewsSSEController();
                 try {
@@ -86,7 +88,7 @@ public class MqttBeans {
         };
     }
 
-    /*
+
     //Channel for publishing
     @Bean
     public MessageChannel mqttOutboundChannel() {
@@ -105,7 +107,7 @@ public class MqttBeans {
         messageHandler.setAsyncEvents(true);
         messageHandler.setDefaultTopic("#");
         return messageHandler;
-    }*/
+    }
 
 
 
