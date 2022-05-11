@@ -65,3 +65,20 @@
 		a.appendChild(para);
 		document.getElementById('pack').appendChild(a);
 	}
+
+	const unsubscribeTopic = async () => {
+		var user = document.forms["connform"]["userID"].value;
+		var topic = document.forms["connform"]["topic"].value;
+
+		const response = await fetch('http://localhost:6033/unsubscribe', {
+		    method: 'POST',
+		    body: 
+		    '{user: ' + user + ', topic : ' + topic + '}', //TODO stringify the object
+		    headers: {
+		      'Content-Type': 'application/json'
+		    }
+		  });
+	  	//const myJson = await response.json(); //extract JSON from the http response
+	  	// do something with myJson
+	  	//console.log(myJson);
+	}

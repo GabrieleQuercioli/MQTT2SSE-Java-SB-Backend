@@ -10,16 +10,19 @@
 </head>
 <body>
 	<h1>SSE Client Demo</h1>
-	<div id="status">Connection Status: Not Connected</div>
-	<br>
+	<div id="status">Connection Status: Not Connected</div><br>
+	<span>I Topics da poter seguire sono tra: newentry, topic, topic2, status</span>
+	<br><br>
+	<div>
 		 <form name="connform" action="" onsubmit="return checkConnection()">
 		 	Server:  	<input type="text" name="server"><br><br>
 			Port:    	<input type="text" name="port"><br><br>
 			EndPoint:   <input type="text" name="endpoint"><br><br>
 			UserID:    <input type="text" name="userID"><br><br>
-			TopicSub:    <input type="text" name="topic"><br><br>
-			<input name="conn" type="submit" value="Connect">
-		</form>
+			Topic:    <input type="text" name="topic"><br><br>
+			<input name="conn" type="submit" value="Subscribe Topic">
+		</form><br>
+		<button id="unsubscribe" onclick="return unsubscribeTopic()">Unsubscribe Topic</button>
 	</div>
 	<br>
 	<div id="pack">
