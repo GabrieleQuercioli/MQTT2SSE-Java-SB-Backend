@@ -13,10 +13,7 @@ import org.springframework.integration.mqtt.inbound.MqttPahoMessageDrivenChannel
 import org.springframework.integration.mqtt.outbound.MqttPahoMessageHandler;
 import org.springframework.integration.mqtt.support.DefaultPahoMessageConverter;
 import org.springframework.integration.mqtt.support.MqttHeaders;
-import org.springframework.messaging.Message;
-import org.springframework.messaging.MessageChannel;
-import org.springframework.messaging.MessageHandler;
-import org.springframework.messaging.MessagingException;
+import org.springframework.messaging.*;
 
 @Configuration
 public class MqttBeans {
@@ -29,11 +26,11 @@ public class MqttBeans {
         options.setUserName("Gabriele05");
         String password = "a31453";
         options.setPassword(password.toCharArray());
-        options.setAutomaticReconnect(false); //TODO: change to true
+        options.setAutomaticReconnect(true); //TODO: change to true
         options.setCleanSession(true);
         options.setConnectionTimeout(10);
         String willMsg = "Client disconnected ungracefully";
-        options.setWill("failTopic", willMsg.getBytes(), 2, true);
+        options.setWill("failTopic", willMsg.getBytes(), 2, false);
 
         factory.setConnectionOptions(options); //Mqtt connection options injected into factory
 
@@ -56,7 +53,7 @@ public class MqttBeans {
         //By default, the default DefaultPahoMessageConverter produces a message with a String payload
         // with the following headers: (mqtt_topic, mqtt_duplicate, mqtt_qos)
         adapter.setConverter(new DefaultPahoMessageConverter());
-        adapter.setQos(2);
+        adapter.setQos(0);
         adapter.setOutputChannel(mqttInputChannel());
 
         return adapter;
@@ -73,11 +70,18 @@ public class MqttBeans {
                     System.out.println("New Entry Topic Event");
                 }
                 System.out.println(message.getPayload());
-                String msg = message.getPayload().toString();
-                message.getHeaders().get(MqttHeaders.RECEIVED_RETAINED);
+                String payload = message.getPayload().toString();
+                System.out.println("Retained: " + message.getHeaders().get(MqttHeaders.RECEIVED_RETAINED));
                // System.out.println(msg);
                 //NewsSSEController nssec = new NewsSSEController();
-                NewsSSEController.dispatchEventsToClients(topic, msg, "gabri05");
+                try {
+                    NewsSSEController.dispatchEventsToClients(topic, payload);
+                    NewsSSEController.addStatusMessage(topic, payload);
+                } catch (MessageHandlingException mhe) {
+                    System.out.println("Message Handling Error");
+                    mhe.printStackTrace();
+                }
+
             }
         };
     }
