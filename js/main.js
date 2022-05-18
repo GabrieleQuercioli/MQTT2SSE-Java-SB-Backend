@@ -7,7 +7,7 @@
 			var user = document.forms["connform"]["userID"].value;
 			var topic = document.forms["connform"]["topic"].value;
 			//usa l'url specificato in back-end per richiedere la connessione al server sul giusto canale
-			var url = "http://"+s+":"+p+"/"+ep+"?userID="+user+"&topic="+topic; 
+			var url = "https://"+s+":"+p+"/"+ep+"?userID="+user+"&topic="+topic; 
 			//tramite l'oggetto EventSource si mette in ascolto di event Emitters che gli faranno pervenire gli eventi
 			var eventSource = new EventSource(url); 
 			
@@ -28,10 +28,26 @@
 			eventSource.addEventListener("latestNews", function(event){
 				console.log(event.lastEventId);
 				var articleData = JSON.parse(event.data);
+				
+				//var t = document.createTextNode(articleData.title);
+				//var listTop = document.createElement('li');
+				//listTop.appendChild(t);
+				//document.getElementById('subList').appendChild(listTop);
 				addBlock(articleData.title, articleData.text);
 			});
 
-			//‘error’ event will be called whenever there is a network error and also when the server closes the connection by calling a 'complete’ or ‘completeWithError’ method on the emitter.
+			eventSource.addEventListener("INIT", (event) => {
+				var jsonParsedData = JSON.parse(event.data);
+				var t = document.createTextNode(jsonParsedData.topic);
+				var listTop = document.createElement('li');
+				listTop.id = 'id-'+jsonParsedData.topic;
+				listTop.className = 'subscription';
+				listTop.appendChild(t);
+				document.getElementById('subList').appendChild(listTop);
+			});
+
+			//‘error’ event will be called whenever there is a network error 
+			//and also when the server closes the connection by calling a 'complete’ or ‘completeWithError’ method on the emitter.
 			eventSource.addEventListener("error", function(event){
 				console.log("Error: " + event.currentTarget.readyState);
 				if (event.currentTarget.readyState == EventSource.CLOSED) {
@@ -40,6 +56,11 @@
 				else{
 					$("#status").html("Disconnected");
 					$("#status").css("background-color", "red");
+					const topics = document.querySelectorAll('.subscription');
+					topics.forEach(topic => {
+					  topic.remove();
+					});
+
 					eventSource.close();
 				}
 			});
@@ -69,16 +90,20 @@
 	const unsubscribeTopic = async () => {
 		var user = document.forms["connform"]["userID"].value;
 		var topic = document.forms["connform"]["topic"].value;
-
-		const response = await fetch('http://localhost:6033/unsubscribe', {
+		//TODO Togliere dalla lista delle iscrizioni il topic 
+		//console.log("id-"+topic)
+		const topicToRemove = document.getElementById("id-"+topic);
+		topicToRemove.remove();
+		const response = await fetch('https://localhost:8443/unsubscribe', {
 		    method: 'POST',
 		    body: 
-		    '{user: ' + user + ', topic : ' + topic + '}', //TODO stringify the object
+		    '{user: ' + user + ', topic : ' + topic + '}', 
 		    headers: {
 		      'Content-Type': 'application/json'
 		    }
 		  });
 	  	//const myJson = await response.json(); //extract JSON from the http response
 	  	// do something with myJson
-	  	//console.log(myJson);
+	  	if (response.status != 200)
+	  		console.log(error);
 	}

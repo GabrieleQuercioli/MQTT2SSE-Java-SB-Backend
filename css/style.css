@@ -1,6 +1,17 @@
 #status
-	{
-		background-color:red;
-		font-weight:bold;
-		color:white;
-	}
+{
+	background-color:red;
+	font-weight:bold;
+	color:white;
+}
+
+#subList
+{
+	padding-left: 0;
+}
+
+li 
+{
+	float: left;
+	padding-right: 30px;
+}
